@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React App</title>
+  <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+
+<body>
+  <div id='app'></div>
+
+  <script type="text/babel">
+
+    function ActiveFriendsList(props) {
+      return (
+        <div>
+          <h2>Active Friends</h2>
+          <ul>
+            {props.list.map((friend) =>
+              <li key={friend.name}>
+                <span>{friend.name}</span>
+                {/*need the arrow function in the onClick because we want this done when the button is pressed*/}
+                <button onClick={() => props.onRemoveFriend(friend.name)}>Remove</button>
+                <button onClick={() => props.onToggleFriend(friend.name)}>Deactivate</button>
+              </li>
+            )}
+          </ul>
+        </div>
+
+      )
+    }
+
+    function InactiveFriendsList(props) {
+      return (
+        <div>
+          <h2>Inactive Friends</h2>
+          <ul>
+            {props.list.map((friend) =>
+              <li key={friend.name}>
+                <span>{friend.name}</span>
+                {/*need the arrow function in the onClick because we want this done when the button is pressed*/}
+                <button onClick={() => props.onToggleFriend(friend.name)}>Activate</button>
+              </li>
+            )}
+          </ul>
+        </div>
+
+      )
+    }
+
+
+    class App extends React.Component {
+      constructor(props) {
+        super(props)
+
+        this.state = {
+          friends: [
+            {
+              name: 'Jordyn',
+              active: true,
+            },
+            {
+              name: 'Mikenzi',
+              active: true,
+            },
+            {
+              name: 'Jake',
+              active: false,
+            },
+            {
+              name: 'Lori',
+              active: true,
+            },
+          ],
+          // local state
+          input: '',
+        }
+
+        this.handleRemoveFriend = this.handleRemoveFriend.bind(this)
+        this.updateInput = this.updateInput.bind(this)
+        this.handleAddFriend = this.handleAddFriend.bind(this)
+
+      }
+
+      handleAddFriend() {
+        this.setState((currentState) => {
+          return {
+            friends: currentState.friends.concat([{
+              name: currentState.input,
+              active: true,
+            }]),
+            input: '',
+          }
+        })
+      }
+
+      handleRemoveFriend(name) {
+        this.setState((currentState) => {
+          return {
+            friends: currentState.friends.filter((friend) => friend.name !== name)
+          }
+        })
+      }
+
+      handleToggleFriend() {
+        // TODO
+        console.log('toggle');
+      }
+
+      updateInput(event) {
+        const value = event.target.value
+        // if you dont care about prev state then you can do it this way
+        this.setState({
+          input: value,
+        })
+      }
+
+      render() {
+        return (
+          <div>
+            <input
+              type="text"
+              placeholder='new friend'
+              value={this.state.input}
+              onChange={this.updateInput}
+            />
+            <button onClick={this.handleAddFriend}>Submit</button>
+
+            <button onClick={() => this.setState({
+              friends: [],
+            })}>Clear All</button>
+
+            <ActiveFriendsList
+              list={this.state.friends}
+              onRemoveFriend={this.handleRemoveFriend}
+              onToggleFriend={this.handleToggleFriend}
+            />
+
+            <InactiveFriendsList
+              list={this.state.friends}
+              onToggleFriend={this.handleToggleFriend}
+            />
+          </div>
+        )
+      }
+    }
+
+    ReactDOM.render(
+      <App name='Joseph' />,
+      document.getElementById('app')
+    )
+  </script>
+</body>
+
+</html>
