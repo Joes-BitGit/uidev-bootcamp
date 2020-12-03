@@ -83,7 +83,7 @@
         this.handleRemoveFriend = this.handleRemoveFriend.bind(this)
         this.updateInput = this.updateInput.bind(this)
         this.handleAddFriend = this.handleAddFriend.bind(this)
-
+        this.handleToggleFriend = this.handleToggleFriend.bind(this)
       }
 
       handleAddFriend() {
@@ -106,9 +106,22 @@
         })
       }
 
-      handleToggleFriend() {
+      handleToggleFriend(name) {
         // TODO
-        console.log('toggle');
+        // thinking about the map function
+        // mapping the toggle to each property in the array of objects active key
+        this.setState((currentState) => {
+          // finds the first friend with the given name
+          const friendToToggle = currentState.friends.find((friend) => friend.name === name)
+          return {
+            // modify friends: take friend to toggleout then concat back in
+            friends: currentState.friends.filter((friendToToggle) => friendToToggle.name !== name)
+              .concat([{
+                name,
+                active: !friendToToggle.active,
+              }])
+          }
+        })
       }
 
       updateInput(event) {
@@ -135,13 +148,13 @@
             })}>Clear All</button>
 
             <ActiveFriendsList
-              list={this.state.friends}
+              list={this.state.friends.filter((friend) => friend.active === true)}
               onRemoveFriend={this.handleRemoveFriend}
               onToggleFriend={this.handleToggleFriend}
             />
 
             <InactiveFriendsList
-              list={this.state.friends}
+              list={this.state.friends.filter((friend) => friend.active === false)}
               onToggleFriend={this.handleToggleFriend}
             />
           </div>
