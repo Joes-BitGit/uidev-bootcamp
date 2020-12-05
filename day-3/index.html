@@ -37,8 +37,6 @@
               active: true,
             }
           ]
-
-
           setTimeout(() => res(friends), 2000)
         })
       }
@@ -47,6 +45,38 @@
   </script>
 
   <script type="text/babel">
+
+    class Loading extends React.Component {
+      constructor(props) {
+        super(props)
+        this.state = {
+          text: 'Loading',
+        }
+      }
+
+      componentDidMount() {
+        const stopper = this.state.text + '...';
+
+        this.interval = window.setInterval(() => {
+          console.log('RUNNING');
+          this.state.text === stopper
+            ? this.setState({ text: 'Loading' })
+            : this.setState((currentState) => {
+              return {
+                text: currentState.text + '.'
+              }
+            })
+        }, 300)
+      }
+
+      componentWillUnmount() {
+        window.clearInterval(this.interval)
+      }
+
+      render() {
+        return <p>{this.state.text}</p>
+      }
+    }
 
     function ActiveFriendsList(props) {
       return (
@@ -95,28 +125,35 @@
           friends: [],
           // local state
           input: '',
+          loading: true,
         }
 
-        this.handleRemoveFriend = this.handleRemoveFriend.bind(this)
-        this.updateInput = this.updateInput.bind(this)
-        this.handleAddFriend = this.handleAddFriend.bind(this)
-        this.handleToggleFriend = this.handleToggleFriend.bind(this)
+        this.handleRemoveFriend = this.handleRemoveFriend.bind(this);
+        this.updateInput = this.updateInput.bind(this);
+        this.handleAddFriend = this.handleAddFriend.bind(this);
+        this.handleToggleFriend = this.handleToggleFriend.bind(this);
 
-        console.log('--constructor--')
+        console.log('--constructor--');
       }
 
+      // fetching data for rendering properly first time
       // mounted into the DOM after first renders
       // e.g used for AJAX request
 
       // firebase or socketio - listeners
       componentDidMount() {
         console.log('--componenetDidMount--');
+
         API.fetchFriends()
           .then((friends) => {
-            console.log('FRIENDS', friends);
+            this.setState({
+              friends,
+              loading: false,
+            })
           })
       }
 
+      // after componenetDidMount whenever new data/props get passed 
       // state change or prop update
       // kinda like routing
       componentDidUpdate() {
@@ -151,7 +188,6 @@
       }
 
       handleToggleFriend(name) {
-        // TODO
         // thinking about the map function
         // mapping the toggle to each property in the array of objects active key
         this.setState((currentState) => {
@@ -179,7 +215,15 @@
       render() {
         // render first with the init state from the constructor
         console.log('--render--');
+
+        if (this.state.loading === true) {
+          // mounted to the view here
+          return <Loading />
+        }
+
+
         return (
+          // loading will be unmounted
           <div>
             <input
               type="text"
