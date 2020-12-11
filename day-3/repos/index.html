@@ -65,6 +65,7 @@
       constructor(props) {
         super(props);
         this.state = {
+          langs: ['all', 'javascript', 'python', 'ruby'],
           repos: [],
           loading: true
         }
@@ -94,10 +95,35 @@
 
         return (
           <div>
+            <ol>
+              {this.state.langs.map((opts) =>
+                // if i click one of these options it should update the component
+
+                // thinking i should have an onclick event handler for each language
+                // then use the component lifecycle componentDidUpdate
+                <li key={opts}>
+                  <span>{opts}</span>
+
+                </li>
+              )}
+            </ol>
+
+            <h2>ALL</h2>
+
             <ul>
               {this.state.repos.map((item) =>
                 <li key={item.id}>
-                  <span>{item.name}</span>
+                  <ul>
+                    <li>
+                      <a href={item.html_url}>{item.name}</a>
+                    </li>
+                    <li>
+                      <span>{'@' + item.owner.login}</span>
+                    </li>
+                    <li>
+                      <span>{item.stargazers_count + ' stars'}</span>
+                    </li>
+                  </ul>
                 </li>
               )}
             </ul>
