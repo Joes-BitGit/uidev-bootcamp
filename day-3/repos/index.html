@@ -6,6 +6,7 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -60,73 +61,108 @@
       }
     }
 
+    function RepoGrid(props) {
+      return (
+        <ul className='grid'>
+          {props.repos.map((item) =>
+            <li key={item.id}>
+              <ul>
+                <li>
+                  <a href={item.html_url}>{item.name}</a>
+                </li>
+                <li>
+                  <span>@{item.owner.login}</span>
+                </li>
+                <li>
+                  <span>{item.stargazers_count}stars</span>
+                </li>
+              </ul>
+            </li>
+          )}
+        </ul>
+      )
+    }
+
+    function Nav(props) {
+      const languages = ['all', 'javascript', 'python', 'ruby'];
+
+      return (
+        <nav>
+          <ol>
+            {languages.map((opts) =>
+              // if i click one of these options it should update the component
+
+              // thinking i should have an onclick event handler for each language
+              // then use the component lifecycle componentDidUpdate
+              <li key={opts}>
+                <span onClick={() => props.onSelectLanguage(opts)}>{opts}</span>
+              </li>
+            )}
+          </ol>
+        </nav>
+      )
+
+    }
+
 
     class App extends React.Component {
       constructor(props) {
         super(props);
         this.state = {
-          langs: ['all', 'javascript', 'python', 'ruby'],
           repos: [],
-          loading: true
+          loading: true,
+          curr: 'all',
         }
+        this.fetchRepos = this.fetchRepos.bind(this)
+        this.handleSelectLanguage = this.handleSelectLanguage.bind(this);
       }
 
       componentDidMount() {
         console.log('--Mounting--');
-        API.fetchPopularRepos('all')
-          .then((repos) => {
-            console.log(repos);
+        this.fetchRepos(this.state.curr)
+      }
+
+      componentDidUpdate(prevProps, prevState) {
+        console.log('--Updating--');
+        if (prevState.curr !== this.state.curr) {
+          this.fetchRepos(this.state.curr)
+        }
+      }
+
+      fetchRepos(lang) {
+
+        this.setState({
+          loading: true
+        })
+
+
+        window.API.fetchPopularRepos(lang)
+          .then((data) => {
             // should update local state 
             this.setState({
-              repos,
-              loading: false
+              repos: data,
+              loading: false,
             })
           })
       }
 
-      render() {
+      handleSelectLanguage(lang) {
+        this.setState({
+          curr: lang
+        })
+      }
 
+      render() {
         // dynamic/conditional rendering
         console.log('--render--');
-        if (this.state.loading) {
-          // mounted to the view here
-          return <Loading />
-        }
-
         return (
           <div>
-            <ol>
-              {this.state.langs.map((opts) =>
-                // if i click one of these options it should update the component
+            <Nav onSelectLanguage={this.handleSelectLanguage} />
+            {this.state.loading === true
+              ? <Loading />
+              : <RepoGrid repos={this.state.repos} />
 
-                // thinking i should have an onclick event handler for each language
-                // then use the component lifecycle componentDidUpdate
-                <li key={opts}>
-                  <span>{opts}</span>
-
-                </li>
-              )}
-            </ol>
-
-            <h2>ALL</h2>
-
-            <ul>
-              {this.state.repos.map((item) =>
-                <li key={item.id}>
-                  <ul>
-                    <li>
-                      <a href={item.html_url}>{item.name}</a>
-                    </li>
-                    <li>
-                      <span>{'@' + item.owner.login}</span>
-                    </li>
-                    <li>
-                      <span>{item.stargazers_count + ' stars'}</span>
-                    </li>
-                  </ul>
-                </li>
-              )}
-            </ul>
+            }
           </div>
         )
       }
