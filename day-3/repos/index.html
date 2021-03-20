@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <title>Popular Repos</title>
@@ -29,37 +29,31 @@
   </script>
 
   <script type='text/babel'>
-    class Loading extends React.Component {
-      constructor(props) {
-        super(props);
+    function Loading() {
+      const [text, setText] = React.useState('Loading');
 
-        this.state = {
-          text: 'Loading'
-        };
-      }
+      React.useEffect(() => {
+        const stopper = text + '...';
+        console.log('MOUNTING IN USEEFFECT');
+        let interval = window.setInterval(() => {
+          text === stopper
+            ? setText('Loading')
+            : setText(`${text}` + '.')
+        }, 300);
 
-      componentDidMount() {
-        const stopper = this.state.text + '...';
+        return () => {
+          console.log('UNMOUNTING IN USEEFFECT');
+          window.clearInterval(interval);
+        }
+      });
 
-        this.interval = window.setInterval(() => {
-          this.state.text === stopper
-            ? this.setState(() => ({ text: 'Loading' }))
-            : this.setState((prevState) => ({ text: prevState.text + '.' }))
-        }, 300)
-      }
-
-      componentWillUnmount() {
-        window.clearInterval(this.interval);
-      }
-
-      render() {
-        return (
-          <p>
-            {this.state.text}
-          </p>
-        )
-      }
+      return (
+        <p>
+          {text}
+        </p>
+      )
     }
+
 
     function RepoGrid(props) {
       return (
